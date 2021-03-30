@@ -1,0 +1,170 @@
+{
+    "type": [
+        "null",
+        "object"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "call_id": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "timestamp": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "campaign": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "call_type": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "agent": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "agent_name": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "disposition": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "ani": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "customer_name": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "dnis": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "call_time": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "bill_time__rounded_": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "cost": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "ivr_time": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "queue_wait_time": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "ring_time": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "talk_time": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "hold_time": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "park_time": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "after_call_work_time": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "transfers": {
+            "type": [
+                "null",
+                "string"
+            ],
+            "format": "date-time"
+        },
+        "conferences": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "holds": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        },
+        "abandoned": {
+            "type": [
+                "null",
+                "string"
+            ]
+        },
+        "recordings": {
+            "type": [
+                "null",
+                "integer"
+            ]
+        }
+    }
+}
