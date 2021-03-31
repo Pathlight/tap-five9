@@ -49,7 +49,7 @@
                 "null",
                 "string"
             ],
-            "format": "date-time"
+            "format": "timestamp"
         }
     }
 }
