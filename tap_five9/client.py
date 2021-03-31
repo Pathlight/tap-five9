@@ -38,5 +38,5 @@ class Five9API:
             results = self.client.configuration.getReportResult(identifier)
             if results:
                 return zeep.helpers.serialize_object(results)
-            else:
-                LOGGER.exception('error retrieving five9 report')
+
+        LOGGER.exception('error retrieving five9 report')
