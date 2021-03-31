@@ -1,7 +1,7 @@
 import datetime
-import inflection
+
 import pytz
-import re
+
 import singer
 import dateutil.parser as parser
 
@@ -44,13 +44,6 @@ class ReportStream():
 
         return value
 
-    def inflect_header(self, header):
-
-        header = re.sub(r'[^a-zA-Z0-9]', '_', header)
-        header = re.sub(r"([A-Z]+)_([A-Z][a-z])", r'\1__\2', header)
-        header = re.sub(r"([a-z\d])_([A-Z])", r'\1__\2', header)
-        return inflection.underscore(header)
-
     def sync(self, state):
         try:
             sync_thru = singer.get_bookmark(state, self.name, self.replication_key)
@@ -66,12 +59,9 @@ class ReportStream():
                 'end': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
             }
 
-        resp = self.client.run_report(params)
-        headers = [self.inflect_header(header) for header in resp['header']['values']['data']]
-        data = resp[self.results_key]
+        data = self.client.return_report_results(params)
         for row in data:
-            values = row['values']['data']
-            record = {headers[i]: self.transform_value(headers[i], values[i]) for i in range(len(headers))}
+            record = {k: self.transform_value(k, v) for (k, v) in row.items()}
             yield(self.stream, record)
 
             bookmark_date = record.get(self.replication_key)
