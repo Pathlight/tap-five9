@@ -13,7 +13,7 @@ setup(
         # NB: Pin these to a more specific version for tap reliability
         "singer-python",
         "requests",
-        "five9"
+        "five9",
         "inflection",
         "zeep"
     ],
