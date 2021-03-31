@@ -87,7 +87,7 @@ class AgentLoginLogout(ReportStream):
     stream = 'agent_login_logout'
     replication_method = 'INCREMENTAL'
     replication_key = 'date'
-    key_properties = 'call_id'
+    key_properties = ['agent', 'date']
     folder_name = 'Agent Reports'
     report_name = 'Agent Login-Logout'
     datetime_fields = set(['date', 'login_timestamp', 'logout_timestamp'])
