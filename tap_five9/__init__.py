@@ -33,12 +33,13 @@ def discover():
     raw_schemas = load_schemas()
     streams = []
     for stream_id, schema in raw_schemas.items():
+        stream_instance = STREAMS[stream_id]
         # TODO: populate any metadata and stream's key properties here..
-        key_properties = ['call_id']
+        key_properties = stream_instance.key_properties
         stream_metadata = metadata.get_standard_metadata(
             schema=schema.to_dict(),
             key_properties=key_properties,
-            valid_replication_keys='timestamp',
+            valid_replication_keys=stream_instance.replication_key,
             replication_method=None
         )
         streams.append(
