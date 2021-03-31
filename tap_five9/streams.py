@@ -94,7 +94,20 @@ class AgentLoginLogout(ReportStream):
     results_key = 'records'
 
 
+class AgentOccupancy(ReportStream):
+    name = 'agent_occupancy'
+    stream = 'agent_occupancy'
+    replication_method = 'INCREMENTAL'
+    replication_key = 'date'
+    key_properties = ['agent', 'date']
+    folder_name = 'Agent Reports'
+    report_name = 'Agent Occupancy'
+    datetime_fields = set(['date'])
+    results_key = 'records'
+
+
 STREAMS = {
     'call_log': CallLog,
     'agent_login_logout': AgentLoginLogout,
+    'agent_occupancy': AgentOccupancy
 }
