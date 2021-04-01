@@ -71,14 +71,14 @@
                 "null",
                 "string"
             ],
-            "format": "date-time"
+            "format": "timestamp"
         },
         "bill_time__rounded_": {
             "type": [
                 "null",
                 "string"
             ],
-            "format": "date-time"
+            "format": "timestamp"
         },
         "cost": {
             "type": [
@@ -91,61 +91,60 @@
                 "null",
                 "string"
             ],
-            "format": "date-time"
+            "format": "timestamp"
         },
         "queue_wait_time": {
             "type": [
                 "null",
                 "string"
             ],
-            "format": "date-time"
+            "format": "timestamp"
         },
         "ring_time": {
             "type": [
                 "null",
                 "string"
             ],
-            "format": "date-time"
+            "format": "timestamp"
         },
         "talk_time": {
             "type": [
                 "null",
                 "string"
             ],
-            "format": "date-time"
+            "format": "timestamp"
         },
         "hold_time": {
             "type": [
                 "null",
                 "string"
             ],
-            "format": "date-time"
+            "format": "timestamp"
         },
         "park_time": {
             "type": [
                 "null",
                 "string"
             ],
-            "format": "date-time"
+            "format": "timestamp"
         },
         "after_call_work_time": {
             "type": [
                 "null",
                 "string"
             ],
-            "format": "date-time"
+            "format": "timestamp"
         },
         "transfers": {
             "type": [
                 "null",
-                "string"
-            ],
-            "format": "date-time"
+                "integer"
+            ]
         },
         "conferences": {
             "type": [
                 "null",
-                "string"
+                "integer"
             ]
         },
         "holds": {
@@ -157,7 +156,7 @@
         "abandoned": {
             "type": [
                 "null",
-                "string"
+                "integer"
             ]
         },
         "recordings": {
