@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+import datetime
 import os
 import json
 import singer
 from singer import utils, metadata
 from singer.catalog import Catalog, CatalogEntry
 from singer.schema import Schema
+from tap_five9.custom_schema import build_schema
 from tap_five9.streams import STREAMS
 from tap_five9.sync import sync_stream
 from tap_five9.client import Five9API
@@ -29,35 +31,62 @@ def load_schemas():
     return schemas
 
 
-def discover():
+def discover(client, custom_reports):
     raw_schemas = load_schemas()
     streams = []
     for stream_id, schema in raw_schemas.items():
         stream_instance = STREAMS[stream_id]
         # TODO: populate any metadata and stream's key properties here..
-        key_properties = stream_instance.key_properties
         stream_metadata = metadata.get_standard_metadata(
             schema=schema.to_dict(),
-            key_properties=key_properties,
+            key_properties=stream_instance.key_properties,
             valid_replication_keys=stream_instance.replication_key,
-            replication_method=None
+            replication_method=stream_instance.replication_method
         )
         streams.append(
             CatalogEntry(
                 tap_stream_id=stream_id,
                 stream=stream_id,
                 schema=schema,
-                key_properties=key_properties,
+                key_properties=stream_instance.key_properties,
                 metadata=stream_metadata,
-                replication_key=None,
+                replication_key=stream_instance.replication_key,
                 is_view=None,
                 database=None,
                 table=None,
                 row_count=None,
                 stream_alias=None,
-                replication_method=None,
+                replication_method=stream_instance.replication_method,
             )
         )
+    if custom_reports:
+        for report in custom_reports:
+            schema = build_schema(client, report)
+            schema = Schema.from_dict(schema)
+            key_properties = report.get('key_properties')
+            replication_key = report.get('valid_replication_keys')
+            stream_metadata = metadata.get_standard_metadata(
+                schema=schema.to_dict(),
+                key_properties=key_properties,
+                valid_replication_keys=replication_key,
+                replication_method=None
+            )
+            streams.append(
+                CatalogEntry(
+                    tap_stream_id=report['stream_id'],
+                    stream=report['stream_id'],
+                    schema=schema,
+                    key_properties=report.get('key_properties'),
+                    metadata=stream_metadata,
+                    replication_key=report.get('valid_replication_keys'),
+                    is_view=None,
+                    database=None,
+                    table=None,
+                    row_count=None,
+                    stream_alias=None,
+                    replication_method=None,
+                )
+            )
     return Catalog(streams)
 
 
@@ -155,19 +184,19 @@ def do_sync(client, catalog, state, start_date):
 def main():
     # Parse command line arguments
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
+    client = Five9API(args.config)
 
     # If discover flag was passed, run discovery mode and dump output to stdout
     if args.discover:
-        catalog = discover()
+        catalog = discover(client, args.config.get('custom_reports'))
         catalog.dump()
     # Otherwise run in sync mode
     else:
         if args.catalog:
             catalog = args.catalog
         else:
-            catalog = discover()
+            catalog = discover(client, args.config.get('custom_reports'))
         start_date = args.config['start_date']
-        client = Five9API(args.config)
         do_sync(client, catalog, args.state, start_date)
 
 
