@@ -18,7 +18,7 @@ class ReportStream():
     key_properties = None
     folder_name = None
     report_name = None
-    results_key = None
+    results_key = 'records'
 
     def __init__(self, client=None, start_date=None):
         self.client = client
@@ -79,7 +79,6 @@ class CallLog(ReportStream):
     folder_name = 'Call Log Reports'
     report_name = 'Call Log'
     datetime_fields = set(['timestamp'])
-    results_key = 'records'
 
 
 class AgentLoginLogout(ReportStream):
@@ -91,7 +90,6 @@ class AgentLoginLogout(ReportStream):
     folder_name = 'Agent Reports'
     report_name = 'Agent Login-Logout'
     datetime_fields = set(['date', 'login_timestamp', 'logout_timestamp'])
-    results_key = 'records'
 
 
 class AgentOccupancy(ReportStream):
@@ -103,7 +101,19 @@ class AgentOccupancy(ReportStream):
     folder_name = 'Agent Reports'
     report_name = 'Agent Occupancy'
     datetime_fields = set(['date'])
-    results_key = 'records'
+
+
+class CustomReport(ReportStream):
+    def __init__(self, name, replication_method, replication_key, key_properties, folder_name, report_name, datetime_fields, stream, client, start_date):
+        self.name = name
+        self.replication_method = replication_method
+        self.replication_key = replication_key
+        self.key_properties = key_properties
+        self.folder_name = folder_name
+        self.report_name = report_name
+        self.datetime_fields = set(datetime_fields)
+        self.stream = stream
+        super().__init__(client, start_date)
 
 
 STREAMS = {

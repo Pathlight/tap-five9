@@ -1,6 +1,5 @@
 import datetime
 import dateutil.parser
-import json
 import singer
 
 from collections import defaultdict
@@ -16,9 +15,10 @@ def create_observations(samples):
     for row in samples:
         for k, v in row.items():
 
-            data = None
             if not v:
                 continue
+
+            data = None
 
             # check if it's a date
             try:
