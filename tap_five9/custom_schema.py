@@ -20,38 +20,32 @@ def create_observations(samples):
 
             data = None
 
+            # check if it's an integer
+            try:
+                data = int(v)
+                observations[k].add('integer')
+                continue
+            except ValueError:
+                pass
+
+            # check if it's a number
+            try:
+                data = float(v)
+                observations[k].add('number')
+                continue
+            except ValueError:
+                pass
+
             # check if it's a date
             try:
                 data = dateutil.parser.parse(v, default=datetime.datetime(1970, 1, 1, 0, 0))
-            except (dateutil.parser.ParserError, OverflowError):
-                pass
-
-            if data:
                 if data.year == 1970:
                     observations[k].add('timestamp')
                 else:
                     observations[k].add('date-time')
                 continue
-
-            # check if it's an integer
-            try:
-                data = int(v)
-            except ValueError:
+            except (dateutil.parser.ParserError, OverflowError):
                 pass
-
-            if data:
-                observations[k].add('integer')
-                continue
-
-            # check if it's a number
-            try:
-                data = float(v)
-            except ValueError:
-                pass
-
-            if data:
-                observations[k].add('number')
-                continue
 
             # otherwise assume it's a string
             observations[k].add('string')
