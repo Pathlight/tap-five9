@@ -20,7 +20,6 @@ def sync_stream(state, start_date, instance):
 
     with metrics.record_counter(stream.tap_stream_id) as counter:
         for (stream, record) in instance.sync(state):
-            # NB: Only count parent records in the case of sub-streams
             counter.increment()
 
             with singer.Transformer() as transformer:

@@ -5,7 +5,8 @@ import singer
 from singer import utils, metadata
 from singer.catalog import Catalog, CatalogEntry
 from singer.schema import Schema
-from tap_five9.streams import STREAMS
+from tap_five9.custom_schema import build_schema
+from tap_five9.streams import STREAMS, CustomReport
 from tap_five9.sync import sync_stream
 from tap_five9.client import Five9API
 
@@ -29,35 +30,61 @@ def load_schemas():
     return schemas
 
 
-def discover():
+def discover(client, custom_reports):
     raw_schemas = load_schemas()
     streams = []
     for stream_id, schema in raw_schemas.items():
         stream_instance = STREAMS[stream_id]
-        # TODO: populate any metadata and stream's key properties here..
-        key_properties = stream_instance.key_properties
         stream_metadata = metadata.get_standard_metadata(
             schema=schema.to_dict(),
-            key_properties=key_properties,
+            key_properties=stream_instance.key_properties,
             valid_replication_keys=stream_instance.replication_key,
-            replication_method=None
+            replication_method=stream_instance.replication_method
         )
         streams.append(
             CatalogEntry(
                 tap_stream_id=stream_id,
                 stream=stream_id,
                 schema=schema,
-                key_properties=key_properties,
+                key_properties=stream_instance.key_properties,
                 metadata=stream_metadata,
-                replication_key=None,
+                replication_key=stream_instance.replication_key,
                 is_view=None,
                 database=None,
                 table=None,
                 row_count=None,
                 stream_alias=None,
-                replication_method=None,
+                replication_method=stream_instance.replication_method,
             )
         )
+    if custom_reports:
+        for report in custom_reports:
+            schema = build_schema(client, report)
+            schema = Schema.from_dict(schema)
+            key_properties = report.get('key_properties')
+            replication_key = report.get('valid_replication_keys')
+            stream_metadata = metadata.get_standard_metadata(
+                schema=schema.to_dict(),
+                key_properties=key_properties,
+                valid_replication_keys=replication_key,
+                replication_method=None
+            )
+            streams.append(
+                CatalogEntry(
+                    tap_stream_id=report['stream_id'],
+                    stream=report['stream_id'],
+                    schema=schema,
+                    key_properties=report.get('key_properties'),
+                    metadata=stream_metadata,
+                    replication_key=report.get('valid_replication_keys'),
+                    is_view=None,
+                    database=None,
+                    table=None,
+                    row_count=None,
+                    stream_alias=report,
+                    replication_method=None,
+                )
+            )
     return Catalog(streams)
 
 
@@ -74,43 +101,16 @@ def get_selected_streams(catalog):
     return selected_stream_names
 
 
-# def get_sub_stream_names():
-#     sub_stream_names = []
-#     for parent_stream in SUB_STREAMS:
-#         sub_stream_names.extend(SUB_STREAMS[parent_stream])
-#     return sub_stream_names
-
-
-# class DependencyException(Exception):
-#     pass
-
-
-# def validate_dependencies(selected_stream_ids):
-#     errs = []
-#     msg_tmpl = ("Unable to extract {0} data. "
-#                 "To receive {0} data, you also need to select {1}.")
-#     for parent_stream_name in SUB_STREAMS:
-#         sub_stream_names = SUB_STREAMS[parent_stream_name]
-#         for sub_stream_name in sub_stream_names:
-#             if sub_stream_name in selected_stream_ids and parent_stream_name not in selected_stream_ids:
-#                 errs.append(msg_tmpl.format(sub_stream_name, parent_stream_name))
-
-#     if errs:
-#         raise DependencyException(" ".join(errs))
-
-
 def populate_class_schemas(catalog, selected_stream_names):
     for stream in catalog.streams:
-        if stream.tap_stream_id in selected_stream_names:
+        if stream.tap_stream_id in selected_stream_names and STREAMS.get(stream.tap_stream_id):
             STREAMS[stream.tap_stream_id].stream = stream
 
 
 def do_sync(client, catalog, state, start_date):
 
     selected_stream_names = get_selected_streams(catalog)
-    # validate_dependencies(selected_stream_names)
     populate_class_schemas(catalog, selected_stream_names)
-    # all_sub_stream_names = get_sub_stream_names()
 
     for stream in catalog.streams:
         stream_name = stream.tap_stream_id
@@ -124,25 +124,23 @@ def do_sync(client, catalog, state, start_date):
             stream.key_properties
         )
 
-        # sub_stream_names = SUB_STREAMS.get(stream_name)
-        # if sub_stream_names:
-        #     for sub_stream_name in sub_stream_names:
-        #         if sub_stream_name not in selected_stream_names:
-        #             continue
-        #         sub_instance = STREAMS[sub_stream_name]
-        #         sub_stream = STREAMS[sub_stream_name].stream
-        #         singer.write_schema(
-        #             sub_stream.tap_stream_id,
-        #             sub_stream.schema.to_dict(),
-        #             sub_instance.key_properties
-        #         )
-
-        # parent stream will sync sub stream
-        # if stream_name in all_sub_stream_names:
-        #     continue
-
         LOGGER.info("%s: Starting sync", stream_name)
-        instance = STREAMS[stream_name](client, start_date)
+        if STREAMS.get(stream_name):
+            instance = STREAMS[stream_name](client, start_date)
+        else:
+            stream_alias = stream.stream_alias
+            instance = CustomReport(
+                name=stream.tap_stream_id,
+                replication_method=stream_alias['replication_method'],
+                replication_key=stream_alias['valid_replication_keys'],
+                key_properties=stream_alias['key_properties'],
+                folder_name=stream_alias['folder_name'],
+                report_name=stream_alias['report_name'],
+                datetime_fields=stream_alias.get('datetime_fields'),
+                stream=stream,
+                client=client,
+                start_date=start_date
+            )
         counter_value = sync_stream(state, start_date, instance)
         singer.write_state(state)
         LOGGER.info("%s: Completed sync (%s rows)", stream_name, counter_value)
@@ -155,19 +153,19 @@ def do_sync(client, catalog, state, start_date):
 def main():
     # Parse command line arguments
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
+    client = Five9API(args.config)
 
     # If discover flag was passed, run discovery mode and dump output to stdout
     if args.discover:
-        catalog = discover()
+        catalog = discover(client, args.config.get('custom_reports'))
         catalog.dump()
     # Otherwise run in sync mode
     else:
         if args.catalog:
             catalog = args.catalog
         else:
-            catalog = discover()
+            catalog = discover(client, args.config.get('custom_reports'))
         start_date = args.config['start_date']
-        client = Five9API(args.config)
         do_sync(client, catalog, args.state, start_date)
 
 
