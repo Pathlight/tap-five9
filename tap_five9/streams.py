@@ -103,6 +103,16 @@ class AgentOccupancy(ReportStream):
     datetime_fields = set(['date'])
 
 
+class AgentInformation(ReportStream):
+    name = 'agent_information'
+    stream = 'agent_information'
+    replication_method = 'INCREMENTAL'
+    replication_key = None
+    key_properties = ['agent_id', 'agent']
+    folder_name = 'Agent Reports'
+    report_name = 'Agent Information'
+
+
 class CustomReport(ReportStream):
     def __init__(self, name, replication_method, replication_key, key_properties, folder_name, report_name, datetime_fields, stream, client, start_date):
         self.name = name
@@ -119,5 +129,6 @@ class CustomReport(ReportStream):
 STREAMS = {
     'call_log': CallLog,
     'agent_login_logout': AgentLoginLogout,
-    'agent_occupancy': AgentOccupancy
+    'agent_occupancy': AgentOccupancy,
+    'agent_information': AgentInformation,
 }
