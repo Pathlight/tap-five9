@@ -49,6 +49,9 @@ class ReportStream():
             sync_thru = singer.get_bookmark(state, self.name, self.replication_key)
         except TypeError:
             sync_thru = self.start_date
+        
+        if not self.replication_key:
+            sync_thru = self.start_date
 
         curr_synced_thru = sync_thru
 
@@ -65,9 +68,11 @@ class ReportStream():
             yield(self.stream, record)
 
             bookmark_date = record.get(self.replication_key)
-            curr_synced_thru = max(curr_synced_thru, bookmark_date)
+            if bookmark_date:
+                curr_synced_thru = max(curr_synced_thru, bookmark_date)
 
-        self.update_bookmark(state, curr_synced_thru)
+        if self.replication_key:
+            self.update_bookmark(state, curr_synced_thru)
 
 
 class CallLog(ReportStream):
@@ -103,6 +108,16 @@ class AgentOccupancy(ReportStream):
     datetime_fields = set(['date'])
 
 
+class AgentInformation(ReportStream):
+    name = 'agent_information'
+    stream = 'agent_information'
+    replication_method = 'FULL_TABLE'
+    key_properties = ['agent_id', 'agent']
+    folder_name = 'Agent Reports'
+    report_name = 'Agents Information'
+    datetime_fields = set()
+
+
 class CustomReport(ReportStream):
     def __init__(self, name, replication_method, replication_key, key_properties, folder_name, report_name, datetime_fields, stream, client, start_date):
         self.name = name
@@ -119,5 +134,6 @@ class CustomReport(ReportStream):
 STREAMS = {
     'call_log': CallLog,
     'agent_login_logout': AgentLoginLogout,
-    'agent_occupancy': AgentOccupancy
+    'agent_occupancy': AgentOccupancy,
+    'agent_information': AgentInformation,
 }
