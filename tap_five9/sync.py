@@ -6,7 +6,7 @@ from singer import metadata
 LOGGER = singer.get_logger()
 
 
-def sync_stream(state, start_date, instance):
+def sync_stream(state, config, start_date, instance):
     stream = instance.stream
     mdata = stream.metadata
 
@@ -19,7 +19,7 @@ def sync_stream(state, start_date, instance):
                               start_date)
 
     with metrics.record_counter(stream.tap_stream_id) as counter:
-        for (stream, record) in instance.sync(state):
+        for (stream, record) in instance.sync(state, config):
             counter.increment()
 
             with singer.Transformer() as transformer:
