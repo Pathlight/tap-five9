@@ -59,7 +59,7 @@ def discover(client, config, custom_reports):
         )
     if custom_reports:
         for report in custom_reports:
-            schema = build_schema(client, report, stream=stream_id, config=config)
+            schema = build_schema(client, report, config=config)
             schema = Schema.from_dict(schema)
             key_properties = report.get('key_properties')
             replication_key = report.get('valid_replication_keys')

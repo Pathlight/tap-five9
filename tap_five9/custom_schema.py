@@ -53,7 +53,7 @@ def create_observations(samples):
     return observations
 
 
-def build_schema(client, report, stream=None, config=None):
+def build_schema(client, report, config=None):
 
     # get a day's worth of data
     end = datetime.datetime.utcnow()
