@@ -78,7 +78,7 @@ For reports, we need to poll for the report status to see when it is completed. 
 | stream | reporting period |
 | :----: | :--------------- | 
 | `delay` | How long to wait between status requests, defaults to 5 seconds |
-| `timeout` | How long to wait for the status request, defaults to 300 seconds | 
+| `timeout` | How long to wait for the status request, defaults to 600 seconds | 
 
 ---
 
