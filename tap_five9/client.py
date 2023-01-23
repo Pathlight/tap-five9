@@ -77,7 +77,7 @@ class Five9API:
         try:
             response = self.client.configuration.getReportResult(identifier)
         except zeep.exceptions.Fault as e:
-            LOGGER.info('Failed to get report results after report stopped running')
+            LOGGER.info(f'Failed to get report results after report stopped running. Report identifier: {identifier}')
             raise e
 
         if response:
