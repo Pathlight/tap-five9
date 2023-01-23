@@ -44,7 +44,7 @@ class ReportStream():
 
         return value
 
-    def sync(self, state, config):
+    def sync(self, state):
         try:
             sync_thru = singer.get_bookmark(state, self.name, self.replication_key)
         except TypeError:
@@ -62,7 +62,7 @@ class ReportStream():
                 'end': datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
             }
 
-        data = self.client.return_report_results(params, config=config)
+        data = self.client.return_report_results(params)
         for row in data:
             record = {k: self.transform_value(k, v) for (k, v) in row.items()}
             yield(self.stream, record)

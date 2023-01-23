@@ -17,6 +17,7 @@ class Five9API:
 
     def __init__(self, config):
         self.client = Five9(config['username'], config['password'])
+        self.config = config
 
     def inflect_field(self, field):
 
@@ -50,13 +51,13 @@ class Five9API:
 
         LOGGER.exception('error running five9 report')
 
-    def get_report_results(self, identifier, config=None):
+    def get_report_results(self, identifier):
         LOGGER.info(f'five9 report created with identifier: {identifier}')
 
         poll_timeout = self.POLL_TIMEOUT
         poll_delay = self.POLL_DELAY
-        if config.get('poll_settings'):
-            settings = config.get('poll_settings', {})
+        if self.config.get('poll_settings'):
+            settings = self.config.get('poll_settings', {})
             poll_timeout = settings.get('timeout')
             poll_delay = settings.get('delay')
 
@@ -85,6 +86,6 @@ class Five9API:
 
         LOGGER.exception(f'error getting five9 report for {identifier}')
 
-    def return_report_results(self, params, config=None):
+    def return_report_results(self, params):
         identifier = self.run_report(params)
-        return self.get_report_results(identifier, config=config)
+        return self.get_report_results(identifier)

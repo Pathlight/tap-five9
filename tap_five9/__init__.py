@@ -30,7 +30,7 @@ def load_schemas():
     return schemas
 
 
-def discover(client, config, custom_reports):
+def discover(client, custom_reports):
     raw_schemas = load_schemas()
     streams = []
     for stream_id, schema in raw_schemas.items():
@@ -59,7 +59,7 @@ def discover(client, config, custom_reports):
         )
     if custom_reports:
         for report in custom_reports:
-            schema = build_schema(client, report, config=config)
+            schema = build_schema(client, report)
             schema = Schema.from_dict(schema)
             key_properties = report.get('key_properties')
             replication_key = report.get('valid_replication_keys')
@@ -107,7 +107,7 @@ def populate_class_schemas(catalog, selected_stream_names):
             STREAMS[stream.tap_stream_id].stream = stream
 
 
-def do_sync(client, catalog, state, config, start_date):
+def do_sync(client, catalog, state, start_date):
 
     selected_stream_names = get_selected_streams(catalog)
     populate_class_schemas(catalog, selected_stream_names)
@@ -141,7 +141,7 @@ def do_sync(client, catalog, state, config, start_date):
                 client=client,
                 start_date=start_date
             )
-        counter_value = sync_stream(state, config, start_date, instance)
+        counter_value = sync_stream(state, client.config, start_date, instance)
         singer.write_state(state)
         LOGGER.info("%s: Completed sync (%s rows)", stream_name, counter_value)
 
@@ -158,16 +158,16 @@ def main():
 
     # If discover flag was passed, run discovery mode and dump output to stdout
     if args.discover:
-        catalog = discover(client, config, config.get('custom_reports'))
+        catalog = discover(client, config.get('custom_reports'))
         catalog.dump()
     # Otherwise run in sync mode
     else:
         if args.catalog:
             catalog = args.catalog
         else:
-            catalog = discover(client, config, config.get('custom_reports'))
+            catalog = discover(client, config.get('custom_reports'))
         start_date = config['start_date']
-        do_sync(client, catalog, args.state, config, start_date)
+        do_sync(client, catalog, args.state, start_date)
 
 
 if __name__ == "__main__":

@@ -53,7 +53,7 @@ def create_observations(samples):
     return observations
 
 
-def build_schema(client, report, config=None):
+def build_schema(client, report):
 
     # get a day's worth of data
     end = datetime.datetime.utcnow()
@@ -64,7 +64,7 @@ def build_schema(client, report, config=None):
         'start': start.strftime('%Y-%m-%dT00:00:00.000'),
         'end': end.strftime('%Y-%m-%dT00:00:00.000')
     }
-    results = client.return_report_results(params, config=config)
+    results = client.return_report_results(params)
 
     sample_selection = results[:10]
     observations = create_observations(sample_selection)
