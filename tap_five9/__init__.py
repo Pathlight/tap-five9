@@ -153,19 +153,20 @@ def do_sync(client, catalog, state, start_date):
 def main():
     # Parse command line arguments
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
-    client = Five9API(args.config)
+    config = args.config
+    client = Five9API(config)
 
     # If discover flag was passed, run discovery mode and dump output to stdout
     if args.discover:
-        catalog = discover(client, args.config.get('custom_reports'))
+        catalog = discover(client, config.get('custom_reports'))
         catalog.dump()
     # Otherwise run in sync mode
     else:
         if args.catalog:
             catalog = args.catalog
         else:
-            catalog = discover(client, args.config.get('custom_reports'))
-        start_date = args.config['start_date']
+            catalog = discover(client, config.get('custom_reports'))
+        start_date = config['start_date']
         do_sync(client, catalog, args.state, start_date)
 
 
