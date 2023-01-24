@@ -141,7 +141,7 @@ def do_sync(client, catalog, state, start_date):
                 client=client,
                 start_date=start_date
             )
-        counter_value = sync_stream(state, client.config, start_date, instance)
+        counter_value = sync_stream(state, start_date, instance)
         singer.write_state(state)
         LOGGER.info("%s: Completed sync (%s rows)", stream_name, counter_value)
 
